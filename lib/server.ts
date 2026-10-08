@@ -1,0 +1,4 @@
+import {createClient} from '@supabase/supabase-js';
+export function admin(){const u=process.env.NEXT_PUBLIC_SUPABASE_URL,k=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!u||!k)throw new Error('Missing server Supabase configuration');return createClient(u,k,{auth:{autoRefreshToken:false,persistSession:false}})}
+export function mail(){if(!process.env.RESEND_API_KEY||!process.env.EMAIL_FROM)throw new Error('Missing Resend configuration');return {key:process.env.RESEND_API_KEY,from:process.env.EMAIL_FROM}}
+export async function deliver(to:string,subject:string,body:string){const {key,from}=mail();const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify({from,to,subject,text:body})});const result=await response.json();if(!response.ok)throw new Error(result.message||'Email failed');return result}
