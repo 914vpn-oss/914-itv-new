@@ -1,3 +1,35 @@
+'use client';
+import {useEffect,useState,type FormEvent} from 'react';
+import Link from 'next/link';
+import {supabase} from '../../lib/supabase';
+
+type Customer={id:number;full_name:string;email:string;phone:string|null;plan:string|null;expiration_date:string;notes:string|null;service?:string|null;username?:string|null;password?:string|null};
+const empty={full_name:'',email:'',phone:'',plan:'',expiration_date:'',notes:'',service:'',username:'',password:''};
+const services=['Darkside 6lue tv','Toothless tv','Dragonfly 6lue tv'];
+type CustomerForm=typeof empty;
+function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function daysUntil(date:string){const [y,m,d]=date.split('-').map(Number);const now=new Date();return Math.round((Date.UTC(y,m-1,d)-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000);}
+export default function Customers(){
+ const[items,setItems]=useState<Customer[]>([]);
+ const[ready,setReady]=useState(false);
+ const[msg,setMsg]=useState('');
+ const[form,setForm]=useState<CustomerForm>({...empty});
+ const[editing,setEditing]=useState<number|null>(null);
+ const[showPassword,setShowPassword]=useState(false);
+ const[busy,setBusy]=useState(false);
+ const[sending,setSending]=useState(false);
+ const[message,setMessage]=useState('');
+ const[selected,setSelected]=useState<number|null>(null);
+ async function load(){
+  const s=supabase();if(!s){setMsg('Configure Supabase first');return;}
+  const{data,error}=await s.from('customers').select('*').order('expiration_date');
+  if(error)setMsg(error.message);else setItems(data||[]);
+ }
+ useEffect(()=>{const c=supabase();if(!c){setMsg('Configure Supabase first');return;}
+  c.auth.getUser().then(({data,error})=>{if(error||!data.user){window.location.href='/login';return;}setReady(true);void load();}).catch(()=>setMsg('Unable to check sign-in. Refresh and try again.'));
+ },[]);
+ function reset(){setEditing(null);setForm({...empty});setShowPassword(false);}
+ function open(customer:Customer){
   setEditing(customer.id);
   setForm({full_name:customer.full_name,email:customer.email,phone:customer.phone||'',plan:customer.plan||'',expiration_date:customer.expiration_date,notes:customer.notes||'',service:customer.service||'',username:customer.username||'',password:customer.password||''});
   setShowPassword(false);setMsg('');window.scrollTo({top:0,behavior:'smooth'});
