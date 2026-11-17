@@ -7,6 +7,7 @@ type PreviewRow = {
   customerName: string | null;
   currentExpirationDate: string | null;
   expirationDate: string | null;
+  notes?: string | null;
   status: string;
 };
 
@@ -50,7 +51,7 @@ export default function BestPanelPreview() {
           {rows.length > 0 && (
             <table>
               <thead>
-                <tr><th>BestPanel username</th><th>914 IPTV customer</th><th>Current expiry</th><th>BestPanel expiry</th><th>Result</th></tr>
+                <tr><th>BestPanel username</th><th>914 IPTV customer</th><th>Current expiry</th><th>BestPanel expiry</th><th>BestPanel notes</th><th>Result</th></tr>
               </thead>
               <tbody>
                 {rows.map(row => (
@@ -59,6 +60,9 @@ export default function BestPanelPreview() {
                     <td>{row.customerName ?? '—'}</td>
                     <td>{row.currentExpirationDate ?? '—'}</td>
                     <td>{row.expirationDate ?? '—'}</td>
+                    <td style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', minWidth: '12rem' }}>
+                      {row.notes === undefined ? 'Unavailable from BestPanel' : row.notes ?? '—'}
+                    </td>
                     <td>{row.status}</td>
                   </tr>
                 ))}
