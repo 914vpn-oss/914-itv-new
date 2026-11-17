@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { admin } from '../../../../lib/server';
+import { createClient } from '@supabase/supabase-js';
 
 type Line = {
   id: number;
@@ -55,7 +55,14 @@ export async function GET(request: NextRequest) {
   if (!sessionToken) return json({ error: 'Sign in to preview BestPanel.' }, 401);
 
   try {
-    const db = admin();
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) return json({ error: 'Supabase is not configured.' }, 503);
+
+    const db = createClient(supabaseUrl, supabaseKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+      global: { headers: { Authorization: `Bearer ${sessionToken}` } },
+    });
     const { data: { user }, error: authError } = await db.auth.getUser(sessionToken);
     if (authError || !user) return json({ error: 'Sign in again to preview BestPanel.' }, 401);
 
