@@ -67,7 +67,8 @@ export async function GET(request: NextRequest) {
     if (authError || !user) return json({ error: 'Sign in again to preview BestPanel.' }, 401);
 
     const ownerId = process.env.BESTPANEL_OWNER_USER_ID?.trim();
-    const panelToken = process.env.BESTPANEL_API_TOKEN?.trim();
+    const panelToken = process.env.BESTPANEL_API_TOKEN?.trim() ||
+      process.env.BESTPANEL_API_TOKEN2?.trim();
     if (!ownerId) return json({ error: 'BestPanel preview needs owner configuration.' }, 503);
     if (user.id !== ownerId) return json({ error: 'BestPanel preview is available to the configured owner.' }, 403);
     if (!panelToken) return json({ error: 'BestPanel preview needs a read-only API token.' }, 503);
