@@ -2,10 +2,11 @@
 import {useEffect,useState,type FormEvent} from 'react';
 import Link from 'next/link';
 import {supabase} from '../../lib/supabase';
+import BestPanelPreview from './bestpanel-preview';
 
 type Customer={id:number;full_name:string;email:string;phone:string|null;plan:string|null;expiration_date:string;notes:string|null;service?:string|null;username?:string|null;password?:string|null};
 const empty={full_name:'',email:'',phone:'',plan:'',expiration_date:'',notes:'',service:'',username:'',password:''};
-const services=['Darkside 6lue tv','Toothless tv','Dragonfly 6lue tv'];
+const services=['Darkside 6lue tv','Toothless tv','Dragonfly 6lue tv','BestPanel'];
 type CustomerForm=typeof empty;
 function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function daysUntil(date:string){const [y,m,d]=date.split('-').map(Number);const now=new Date();return Math.round((Date.UTC(y,m-1,d)-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000);}
@@ -69,6 +70,7 @@ export default function Customers(){
    <div className="card"><div className="muted">Expiring within 3 days</div><div className="big">{items.filter(x=>{const d=daysUntil(x.expiration_date);return d>=0&&d<=3;}).length}</div></div>
    <div className="card"><div className="muted">Expired</div><div className="big">{items.filter(x=>x.expiration_date<today()).length}</div></div>
   </section>
+  <BestPanelPreview/>
   <form className="card" onSubmit={save}>
    <h2>{editing===null?'Add customer':'Customer details / Edit'}</h2>
    <fieldset disabled={busy} style={{border:0,padding:0,margin:0}}>
