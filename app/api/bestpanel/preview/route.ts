@@ -6,6 +6,7 @@ type Line = {
   username: string;
   exp_date: string | null;
   unlimited: boolean;
+  notes?: string | null;
 };
 
 const expiryFormat = new Intl.DateTimeFormat('en-CA', {
@@ -43,7 +44,14 @@ async function listLines(token: string) {
         (line.exp_date !== null && typeof line.exp_date !== 'string')) {
         throw new Error('Invalid BestPanel subscription');
       }
-      lines.set(line.id, { id: line.id, username: line.username, exp_date: line.exp_date, unlimited: line.unlimited === true });
+      lines.set(line.id, {
+        id: line.id,
+        username: line.username,
+        exp_date: line.exp_date,
+        unlimited: line.unlimited === true,
+        notes: typeof line.notes === 'string' ? line.notes.trim() || null
+          : line.notes === null ? null : undefined,
+      });
     }
     if (page * perPage >= result.total) return [...lines.values()];
     if (result.items.length !== perPage) throw new Error('Incomplete BestPanel page');
@@ -101,6 +109,7 @@ export async function GET(request: NextRequest) {
           customerName: match?.full_name ?? null,
           currentExpirationDate: match?.expiration_date ?? null,
           expirationDate,
+          notes: line.notes,
           status,
         };
       }),
